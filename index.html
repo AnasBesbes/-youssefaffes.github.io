@@ -17,6 +17,7 @@
     body {
       font-family: 'Poppins', sans-serif;
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
@@ -34,32 +35,35 @@
       /* 'fixed' retire : bug iOS qui laissait une bande blanche en bas */
     }
 
-    /* Halos lumineux fixes (dorés uniquement, cohérents avec le logo) */
-    body::before {
-      content: '';
+    /* Couche de fond fixe (halos + particules) enfermee dans un cadre qui
+       remplit exactement l'ecran -> evite tout espace vide en bas sur iOS */
+    .bg-layer {
       position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-layer #cnv { position: absolute; inset: 0; }
+
+    /* Halos lumineux (dores, coherents avec le logo) */
+    .halo-top, .halo-bottom {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .halo-top {
       top: -10%; left: 50%;
       transform: translateX(-50%);
       width: min(700px, 100vw);
       height: 500px;
-      border-radius: 50%;
       background: radial-gradient(ellipse, rgba(201,168,76,.14) 0%, transparent 65%);
-      pointer-events: none;
-      z-index: 0;
     }
-    body::after {
-      content: '';
-      position: fixed;
+    .halo-bottom {
       bottom: -10%; left: 30%;
       width: 450px; height: 450px;
-      border-radius: 50%;
       background: radial-gradient(ellipse, rgba(201,168,76,.08) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
     }
-
-    /* Canvas particules */
-    #cnv { position:fixed; inset:0; z-index:0; pointer-events:none; }
 
     /* ═══ CARTE ═══ */
     .card {
@@ -418,11 +422,13 @@
       font-size: clamp(13px, 3.5vw, 14px);
       font-family: 'Cairo', sans-serif;
       box-shadow: 0 12px 36px rgba(201,168,76,.42);
-      transform: translateY(140%);
-      transition: transform .32s cubic-bezier(.34,1.56,.64,1);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px);
+      transition: transform .32s cubic-bezier(.34,1.56,.64,1), opacity .32s, visibility .32s;
       z-index: 100;
     }
-    .notif.show { transform: translateY(0); }
+    .notif.show { opacity: 1; visibility: visible; transform: translateY(0); }
 
     /* ═══ RESPONSIVE ═══ */
     @media (max-width: 390px) {
@@ -442,7 +448,11 @@
 </head>
 <body>
 
-<canvas id="cnv"></canvas>
+<div class="bg-layer">
+  <div class="halo-top"></div>
+  <div class="halo-bottom"></div>
+  <canvas id="cnv"></canvas>
+</div>
 
 <div class="card">
   <div class="stripe"></div>
